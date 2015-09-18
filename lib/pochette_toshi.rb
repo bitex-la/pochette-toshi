@@ -2,11 +2,7 @@ require "pochette_toshi/version"
 require "active_support"
 require "active_support/core_ext"
 require "pg"
-
-module Pochette
-  module Backends
-  end
-end
+require 'pochette'
 
 # This class is not properly tested.
 # Be careful when changing anything, and/or make sure
