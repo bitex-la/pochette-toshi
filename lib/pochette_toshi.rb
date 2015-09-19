@@ -162,7 +162,7 @@ class Pochette::Backends::Toshi
 
   def list_transactions(txids)
     transactions = []
-    addresses.in_groups_of(500, false).collect do |group|
+    txids.in_groups_of(500, false).collect do |group|
       transactions += list_transactions_helper(group)
     end
     transactions
