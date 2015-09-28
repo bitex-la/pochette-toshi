@@ -3,6 +3,9 @@ require "active_support"
 require "active_support/core_ext"
 require "pg"
 require 'pochette'
+require 'net/http'
+require 'uri'
+require 'oj'
 
 # This class is not properly tested.
 # Be careful when changing anything, and/or make sure
@@ -209,6 +212,13 @@ class Pochette::Backends::Toshi
 
   def block_height
     connection.exec('select max(height) from blocks where branch = 0').values[0][0].to_i
+  end
+
+  def pushtx(hex)
+    domain = Pochette.testnet ? 'testnet3' : 'bitcoin'
+    uri = URI.parse("https://#{domain}.toshi.io/api/v0/transactions")
+    response = Oj.load(Net::HTTP.post_form(uri, {"hex" => hex}).body)
+    response['hash']
   end
   
   def query(sql)
