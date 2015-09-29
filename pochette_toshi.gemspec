@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
-  spec.add_dependency "pochette", "~> 0.1.3"
+  spec.add_dependency "pochette", "~> 0.1.4"
   spec.add_dependency "pg", "~> 0.17"
   spec.add_dependency "activesupport", "~> 4.2"
 
