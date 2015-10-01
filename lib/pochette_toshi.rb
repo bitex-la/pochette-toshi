@@ -3,7 +3,7 @@ require "active_support"
 require "active_support/core_ext"
 require "pg"
 require 'pochette'
-require 'net/http'
+require 'rest-client'
 require 'uri'
 require 'oj'
 
@@ -216,8 +216,8 @@ class Pochette::Backends::Toshi
 
   def pushtx(hex)
     domain = Pochette.testnet ? 'testnet3' : 'bitcoin'
-    uri = URI.parse("https://#{domain}.toshi.io/api/v0/transactions")
-    response = Oj.load(Net::HTTP.post_form(uri, {"hex" => hex}).body)
+    response = RestClient.post "https://#{domain}.toshi.io/api/v0/transactions",
+      {"hex" => hex}.to_json, content_type: :json, accept: :json
     response['hash']
   end
   
