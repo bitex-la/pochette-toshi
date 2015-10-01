@@ -218,7 +218,7 @@ class Pochette::Backends::Toshi
     domain = Pochette.testnet ? 'testnet3' : 'bitcoin'
     response = RestClient.post "https://#{domain}.toshi.io/api/v0/transactions",
       {"hex" => hex}.to_json, content_type: :json, accept: :json
-    response['hash']
+    Oj.load(response)['hash']
   end
   
   def query(sql)

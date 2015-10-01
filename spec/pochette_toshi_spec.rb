@@ -27,6 +27,13 @@ describe PochetteToshi do
     Toshi.connection.execute(sql).values[0]
   end
 
+  it 'can push a transaction' do
+    stub_request(:post, "https://bitcoin.toshi.io/api/v0/transactions")
+      .with(body: '{"hex":"rawtx"}')
+      .to_return(status: 200, body: '{"hash":"tehash"}')
+    backend.pushtx('rawtx').should == 'tehash'
+  end
+
   #it 'lists all transactions for a group of addresses' do
   #  print JSON.pretty_generate JSON.parse backend.incoming_for(addresses, 3.years.ago).to_json
   #end
