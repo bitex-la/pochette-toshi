@@ -23,10 +23,6 @@ describe PochetteToshi do
 
   let(:backend){ Pochette::Backends::Toshi.new(user: 'toshi', dbname: 'toshi_development') }
 
-  def query(sql)
-    Toshi.connection.execute(sql).values[0]
-  end
-
   it 'can push a transaction' do
     stub_request(:post, "https://bitcoin.toshi.io/api/v0/transactions")
       .with(body: '{"hex":"rawtx"}')

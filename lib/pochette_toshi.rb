@@ -2,7 +2,7 @@ require "pochette_toshi/version"
 require "active_support"
 require "active_support/core_ext"
 require "pg"
-require 'thread'
+require 'sequel'
 require 'pochette'
 require 'rest-client'
 require 'uri'
@@ -13,11 +13,10 @@ require 'oj'
 # you can run and assert your changes with a local copy of
 # a toshi testnet database.
 class Pochette::Backends::Toshi 
-  attr_accessor :connection
+  cattr_accessor :db
 
   def initialize(options)
-    @mutex = Mutex.new
-    self.connection = PG.connect(options)
+    self.class.db ||= Sequel.connect(options.merge(adapter: 'postgres'))
   end
   
   def incoming_for(addresses, min_date)
@@ -213,7 +212,7 @@ class Pochette::Backends::Toshi
   end
 
   def block_height
-    connection.exec('select max(height) from blocks where branch = 0').values[0][0].to_i
+    query('select max(height) from blocks where branch = 0')[0][0].to_i
   end
 
   def pushtx(hex)
@@ -224,7 +223,9 @@ class Pochette::Backends::Toshi
   end
   
   def query(sql)
-    @mutex.synchronize{ connection.exec(sql).values }
+    self.db.synchronize do |conn|
+      conn.exec(sql).values
+    end
   end
   
   def sanitize_list(list)
