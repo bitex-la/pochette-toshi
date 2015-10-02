@@ -16,7 +16,7 @@ class Pochette::Backends::Toshi
   cattr_accessor :db
 
   def initialize(options)
-    self.class.db ||= Sequel.connect(options.merge(adapter: 'postgres'))
+    self.class.db ||= Sequel.postgres(options)
   end
   
   def incoming_for(addresses, min_date)
