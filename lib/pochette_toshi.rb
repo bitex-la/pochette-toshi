@@ -2,6 +2,7 @@ require "pochette_toshi/version"
 require "active_support"
 require "active_support/core_ext"
 require "pg"
+require 'thread'
 require 'pochette'
 require 'rest-client'
 require 'uri'
@@ -15,6 +16,7 @@ class Pochette::Backends::Toshi
   attr_accessor :connection
 
   def initialize(options)
+    @mutex = Mutex.new
     self.connection = PG.connect(options)
   end
   
@@ -222,7 +224,7 @@ class Pochette::Backends::Toshi
   end
   
   def query(sql)
-    connection.exec(sql).values
+    @mutex.synchronize{ connection.exec(sql).values }
   end
   
   def sanitize_list(list)
