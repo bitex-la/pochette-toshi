@@ -149,7 +149,7 @@ class Pochette::Backends::Toshi
   def list_unspent_helper(addresses)
     addresses_sql = sanitize_list(addresses)
     query(%{
-      SELECT a.address, o.hsh, o.position, uo.amount
+      SELECT a.address, o.hsh, o.position, uo.amount, o.script
       FROM addresses a
         INNER JOIN unspent_outputs uo ON uo.address_id = a.id AND uo.amount > 5000
         LEFT JOIN outputs o ON o.id = uo.output_id
@@ -161,7 +161,7 @@ class Pochette::Backends::Toshi
           i.prev_out = '0000000000000000000000000000000000000000000000000000000000000000'
           AND t.height > #{block_height - 100}
         )
-    }).collect{|a,b,c,d| [a,b,c.to_i,d.to_i]}
+    }).collect{|a,b,c,d,e| [a,b,c.to_i,d.to_i,e[2..-1]]}
   end
 
   def list_transactions(txids)
