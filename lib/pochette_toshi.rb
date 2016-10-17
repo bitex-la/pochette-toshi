@@ -12,7 +12,7 @@ require 'oj'
 # Be careful when changing anything, and/or make sure
 # you can run and assert your changes with a local copy of
 # a toshi testnet database.
-class Pochette::Backends::Toshi 
+class Pochette::Backends::Toshi < Pochette::Backends::Base
   cattr_accessor :db
 
   def initialize(options)
@@ -215,11 +215,10 @@ class Pochette::Backends::Toshi
     query('select max(height) from blocks where branch = 0')[0][0].to_i
   end
 
-  def pushtx(hex)
+  def propagate(hex)
     domain = Pochette.testnet ? 'testnet3' : 'bitcoin'
-    response = RestClient.post "https://#{domain}.toshi.io/api/v0/transactions",
+    RestClient.post "https://#{domain}.toshi.io/api/v0/transactions",
       {"hex" => hex}.to_json, content_type: :json, accept: :json
-    Oj.load(response)['hash']
   end
   
   def query(sql)
