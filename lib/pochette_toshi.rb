@@ -13,7 +13,7 @@ require 'oj'
 # you can run and assert your changes with a local copy of
 # a toshi testnet database.
 class Pochette::Backends::Toshi < Pochette::Backends::Base
-  cattr_accessor :db
+  cattr_accessor :db, :api_base_url
 
   def initialize(options)
     self.class.db ||= Sequel.postgres(options)
@@ -216,9 +216,9 @@ class Pochette::Backends::Toshi < Pochette::Backends::Base
   end
 
   def propagate(hex)
-    domain = Pochette.testnet ? 'testnet3' : 'bitcoin'
-    RestClient.post "https://#{domain}.toshi.io/api/v0/transactions",
-      {"hex" => hex}.to_json, content_type: :json, accept: :json
+    base_url = self.api_base_url || "https://#{Pochette.testnet ? 'testnet3' : 'bitcoin'}.toshi.io"
+    RestClient.post "#{base_url}/api/v0/transactions", {"hex" => hex}.to_json,
+      content_type: :json, accept: :json
   end
   
   def query(sql)

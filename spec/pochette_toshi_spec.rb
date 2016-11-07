@@ -32,6 +32,13 @@ describe PochetteToshi do
     backend.pushtx(hex).should == 'fb92420f73af6d25f5fab93435bc6b8ebfff3a07c02abd053f0923ae296fe380'
   end
 
+  it 'can use custom toshi REST API host' do
+    backend.api_base_url = 'http://some-host:5000'
+    stubbed = stub_request(:post, 'http://some-host:5000/api/v0/transactions')
+    backend.pushtx(hex)
+    expect(stubbed).to have_been_requested
+  end
+
   #it 'lists all transactions for a group of addresses' do
   #  print JSON.pretty_generate JSON.parse backend.incoming_for(addresses, 3.years.ago).to_json
   #end
