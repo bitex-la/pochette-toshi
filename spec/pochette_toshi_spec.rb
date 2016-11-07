@@ -25,18 +25,28 @@ describe PochetteToshi do
 
   let(:hex) { "0100000001d11a6cc978fc41aaf5b24fc5c8ddde71fb91ffdba9579cd62ba20fc284b2446c000000008a47304402206d2f98829a9e5017ade2c084a8b821625c35aeaa633f718b1c348906afbe68b00220094cb8ee519adcebe866e655532abab818aa921144bd98a12491481931d2383a014104e318459c24b89c0928cec3c9c7842ae749dcca78673149179af9155c80f3763642989df3ffe34ab205d02e2efd07e9a34db2f00ed8b821dd5bb087ff64df2c9effffffff0280f0fa02000000001976a9149b754a70b9a3dbb64f65db01d164ef51101c18d788ac40aeeb02000000001976a914aadf5d54eda13070d39af72eb5ce40b1d3b8282588ac00000000" }
 
-  it 'implements #propagate' do
-    stub_request(:post, "https://bitcoin.toshi.io/api/v0/transactions")
-      .with(body: %'{"hex":"#{hex}"}')
-      .to_return(status: 200, body: '{"hash":"tehash"}')
-    backend.pushtx(hex).should == 'fb92420f73af6d25f5fab93435bc6b8ebfff3a07c02abd053f0923ae296fe380'
-  end
+  describe '#propagate' do
+    it 'is implemented' do
+      stub_request(:post, "https://bitcoin.toshi.io/api/v0/transactions")
+        .with(body: %'{"hex":"#{hex}"}')
+        .to_return(status: 200, body: '{"hash":"tehash"}')
+      backend.pushtx(hex).should == 'fb92420f73af6d25f5fab93435bc6b8ebfff3a07c02abd053f0923ae296fe380'
+    end
 
-  it 'can use custom toshi REST API host' do
-    backend.api_base_url = 'http://some-host:5000'
-    stubbed = stub_request(:post, 'http://some-host:5000/api/v0/transactions')
-    backend.pushtx(hex)
-    expect(stubbed).to have_been_requested
+    it 'can use custom toshi REST API host' do
+      backend.api_base_url = 'http://some-host:5000'
+      stubbed = stub_request(:post, 'http://some-host:5000/api/v0/transactions')
+        .with(body: %'{"hex":"#{hex}"}')
+        .to_return(status: 200, body: '{"hash":"tehash"}')
+      backend.pushtx(hex)
+      expect(stubbed).to have_been_requested
+    end
+
+    it 'raises an exception on error' do
+      stub_request(:post, "https://bitcoin.toshi.io/api/v0/transactions")
+        .to_return(status: 200, body: '{"error":"some error"}')
+      expect { backend.pushtx(hex) }.to raise_error
+    end
   end
 
   #it 'lists all transactions for a group of addresses' do

@@ -18,7 +18,7 @@ class Pochette::Backends::Toshi < Pochette::Backends::Base
   def initialize(options)
     self.class.db ||= Sequel.postgres(options)
   end
-  
+ 
   def incoming_for(addresses, min_date)
     addresses.in_groups_of(500, false).collect do |group|
       incoming_for_helper(group, min_date)
@@ -56,7 +56,7 @@ class Pochette::Backends::Toshi < Pochette::Backends::Base
         INNER JOIN unconfirmed_outputs o ON o.id = ale.output_id 
     }).collect{|a,addr,hsh,confs,pos,sender| [a.to_i, addr, hsh, confs.to_i, pos.to_i, sender] }
   end
-  
+
   def balances_for(addresses, confirmations)
     addresses.in_groups_of(500, false).reduce({}) do |accum, group|
       accum.merge!(balances_for_helper(group, confirmations))
@@ -217,18 +217,18 @@ class Pochette::Backends::Toshi < Pochette::Backends::Base
 
   def propagate(hex)
     base_url = self.api_base_url || "https://#{Pochette.testnet ? 'testnet3' : 'bitcoin'}.toshi.io"
-    RestClient.post "#{base_url}/api/v0/transactions", {"hex" => hex}.to_json,
-      content_type: :json, accept: :json
+    response = JSON.load(RestClient.post("#{base_url}/api/v0/transactions",
+      {"hex" => hex}.to_json, content_type: :json, accept: :json))
+    raise StandardError, response['error'] if response['error']
   end
-  
+
   def query(sql)
     self.db.synchronize do |conn|
       conn.exec(sql).values
     end
   end
-  
+
   def sanitize_list(list)
     list.collect{|a| "'#{a}'"}.join(',')
   end
 end
-
